@@ -43,9 +43,9 @@ const setColumns = (nodes: Map<string, SankeyNode>, column: SankeyControllerData
 }
 
 export const getParsedData = (data: AnyObject[], parsing: SankeyControllerDatasetOptions['parsing']) => {
-  const { from: fromKey = 'from', to: toKey = 'to', flow: flowKey = 'flow' } = parsing
+  const { from: fromKey = 'from', to: toKey = 'to', flow: flowKey = 'flow', color: colorKey = 'color' } = parsing
 
-  return data.map(({ [fromKey]: from, [toKey]: to, [flowKey]: flow }) => ({ from, to, flow }) as SankeyDataPoint)
+  return data.map(({ [fromKey]: from, [toKey]: to, [flowKey]: flow, [colorKey]: color }) => ({ from, to, flow, color }) as SankeyDataPoint)
 }
 
 export function buildNodesFromData(

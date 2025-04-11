@@ -1,7 +1,7 @@
 import { Color, Element, Point, SankeyNode } from 'chart.js'
 import { color, getHoverColor } from 'chart.js/helpers'
 
-import { FlowConfig, FlowOptions, FlowProps } from '../types/index.esm'
+import { FlowConfig, FlowProps } from '../types/index.esm'
 
 type ControlPoints = { cp1: Point; cp2: Point }
 
@@ -25,17 +25,18 @@ const applyAlpha = (original: string, alpha: number): string => color(original).
 const getColorOption = (option: Color, alpha: number): Color =>
   typeof option === 'string' ? applyAlpha(option, alpha) : option
 
-function setStyle(ctx: CanvasRenderingContext2D, { x, x2, options }: FlowConfig) {
-  let fill: string | CanvasGradient | CanvasPattern = 'black'
-
-  if (options.colorMode === 'from') {
-    fill = getColorOption(options.colorFrom, options.alpha)
-  } else if (options.colorMode === 'to') {
-    fill = getColorOption(options.colorTo, options.alpha)
-  } else if (typeof options.colorFrom === 'string' && typeof options.colorTo === 'string') {
+function setStyle(ctx: CanvasRenderingContext2D, { x, x2, color, active }: FlowConfig) {
+  // Make sure nodes connected to hovered flows are using hover colors.
+  const c = active && color.hover ? color.hover : color
+  const alpha = active ? (color.alpha ?? 1) : (color.alpha ?? 0.5)
+  let fill: string | CanvasGradient | CanvasPattern = getColorOption('grey', alpha)
+  if (typeof c.from === 'string' && typeof c.to === 'string') {
     fill = ctx.createLinearGradient(x, 0, x2, 0)
-    fill.addColorStop(0, applyAlpha(options.colorFrom, options.alpha))
-    fill.addColorStop(1, applyAlpha(options.colorTo, options.alpha))
+    fill.addColorStop(0, applyAlpha(c.from, alpha))
+    fill.addColorStop(1, applyAlpha(c.to, alpha))
+  }
+  else if (typeof c.fill === 'string') {
+    fill = getColorOption(c.fill, alpha)
   }
 
   ctx.fillStyle = fill
@@ -43,16 +44,8 @@ function setStyle(ctx: CanvasRenderingContext2D, { x, x2, options }: FlowConfig)
   ctx.lineWidth = 0.5
 }
 
-export default class Flow extends Element<FlowProps, FlowOptions> {
+export default class Flow extends Element<FlowProps> {
   static readonly id = 'flow'
-  static override readonly defaults = {
-    colorFrom: 'red',
-    colorTo: 'green',
-    colorMode: 'gradient',
-    alpha: 0.5,
-    hoverColorFrom: (_ctx, options) => getHoverColor(options.colorFrom),
-    hoverColorTo: (_ctx, options) => getHoverColor(options.colorTo),
-  }
 
   static readonly descriptors = {
     _scriptable: true,
@@ -65,6 +58,18 @@ export default class Flow extends Element<FlowProps, FlowOptions> {
   progress: number
   from: SankeyNode
   to: SankeyNode
+  color?: {
+    alpha?: number
+    fill?: Color
+    from?: Color
+    to?: Color
+    hover?: {
+      alpha?: number
+      fill?: Color
+      from?: Color
+      to?: Color
+    }
+  }
 
   constructor(cfg: FlowConfig) {
     super()

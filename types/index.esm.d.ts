@@ -19,6 +19,18 @@ declare module 'chart.js' {
     from: string
     to: string
     flow: number
+    color: {
+      alpha: number
+      fill: Color
+      from: Color
+      to: Color
+      hover: {
+        alpha: number
+        fill: Color
+        from: Color
+        to: Color
+      }
+    }
   }
 
   /* dataset configuration */
@@ -46,7 +58,7 @@ declare module 'chart.js' {
     font?: FontSpec /* defaults to chart.options.font */
     padding?: number /* defaults to font.lineHeight / 2 */
 
-    parsing: { from: string; to: string; flow: string }
+    parsing: { from: string; to: string; flow: string; color: object }
   }
 
   type FromToElement = {
@@ -99,7 +111,6 @@ declare module 'chart.js' {
       parsedDataType: SankeyParsedData
       metaExtensions: AnyObject
       /* TODO: define sankey chart options */
-      chartOptions: FlowOptions
       scales: keyof CartesianScaleTypeRegistry
     }
   }
@@ -114,22 +125,12 @@ export interface FlowProps {
   width: number
 }
 
-export interface FlowOptions {
-  alpha: number
-  colorMode: 'gradient' | 'from' | 'to'
-  colorFrom: 'string'
-  colorTo: Color
-  hoverColorFrom: Color
-  hoverColorTo: Color
-}
-
 export interface FlowConfig {
   x: number
   y: number
   x2: number
   y2: number
   height: number
-  options: FlowOptions
 }
 
 export type SankeyController = DatasetController
@@ -138,8 +139,8 @@ export const SankeyController: ChartComponent & {
   new (chart: Chart, datasetIndex: number): SankeyController
 }
 
-export interface Flow<T extends FlowConfig = FlowConfig, O extends FlowOptions = FlowOptions>
-  extends Element<T, O>,
+export interface Flow<T extends FlowConfig = FlowConfig>
+  extends Element<T>,
     VisualElement {}
 
 export const Flow: ChartComponent & {

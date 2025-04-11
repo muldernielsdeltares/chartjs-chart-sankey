@@ -79,7 +79,7 @@ export default class SankeyController extends DatasetController {
     },
     datasets: {
       clip: false,
-      parsing: { from: 'from', to: 'to', flow: 'flow' },
+      parsing: { from: 'from', to: 'to', flow: 'flow', color: 'color' },
     },
     plugins: {
       tooltip: {
@@ -171,6 +171,7 @@ export default class SankeyController extends DatasetController {
           y: yScale.parse(toY, i) as number,
           height: yScale.parse(dataPoint.flow, i) as number,
           flow: dataPoint.flow,
+          color: dataPoint.color,
         },
       })
     }
@@ -221,6 +222,7 @@ export default class SankeyController extends DatasetController {
           progress: mode === 'reset' ? 0 : 1,
           height: Math.abs(yScale.getPixelForValue(parsed.y + custom.height) - y),
           options: this.resolveDataElementOptions(i, mode),
+          color: custom.color,
         },
         mode
       )
