@@ -238,7 +238,6 @@ export default class SankeyController extends DatasetController {
     const size = validateSizeValue(options.size)
     const borderWidth = options.borderWidth ?? 1
     const nodeWidth = options.nodeWidth ?? 10
-    const labels = options.labels
     const { xScale, yScale } = this._cachedMeta
 
     if (!xScale || !yScale) return
@@ -251,7 +250,7 @@ export default class SankeyController extends DatasetController {
 
       const max = Math[size](node.in || node.out, node.out || node.in)
       const height = Math.abs(yScale.getPixelForValue(node.y + max) - y)
-      const label = labels?.[node.key] ?? node.key
+      const label = node.label ?? node.key
       let textX = x
       ctx.fillStyle = options.color ?? 'black'
       ctx.textBaseline = 'middle'
@@ -321,23 +320,6 @@ export default class SankeyController extends DatasetController {
   override draw() {
     const ctx = this.chart.ctx
     const data = (this.getMeta().data as Flow[]) ?? []
-
-    // Set node colors
-    const active: Flow[] = []
-    for (let i = 0, ilen = data.length; i < ilen; ++i) {
-      const flow = data[i] /* Flow at index i */
-      flow.from.color = flow.options.colorFrom
-      flow.to.color = flow.options.colorTo
-      if (flow.active) {
-        active.push(flow)
-      }
-    }
-
-    // Make sure nodes connected to hovered flows are using hover colors.
-    for (const flow of active) {
-      flow.from.color = flow.options.colorFrom
-      flow.to.color = flow.options.colorTo
-    }
 
     this._drawNodes()
 

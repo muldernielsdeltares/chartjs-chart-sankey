@@ -21,27 +21,6 @@ const setSizes = (nodes: Map<string, SankeyNode>, size: SankeyControllerDatasetO
   }
 }
 
-const setPriorities = (nodes: Map<string, SankeyNode>, priority: SankeyControllerDatasetOptions['priority']) => {
-  if (!priority) return
-
-  for (const node of nodes.values()) {
-    if (node.key in priority) {
-      node.priority = priority[node.key]
-    }
-  }
-}
-
-const setColumns = (nodes: Map<string, SankeyNode>, column: SankeyControllerDatasetOptions['column']) => {
-  if (!column) return
-
-  for (const node of nodes.values()) {
-    if (node.key in column) {
-      node.column = true
-      node.x = column[node.key]
-    }
-  }
-}
-
 export const getParsedData = (data: AnyObject[], parsing: SankeyControllerDatasetOptions['parsing']) => {
   const { from: fromKey = 'from', to: toKey = 'to', flow: flowKey = 'flow', color: colorKey = 'color' } = parsing
 
@@ -50,7 +29,7 @@ export const getParsedData = (data: AnyObject[], parsing: SankeyControllerDatase
 
 export function buildNodesFromData(
   data: SankeyDataPoint[],
-  { size, priority, column }: Pick<SankeyControllerDatasetOptions, 'size' | 'priority' | 'column'>
+  { size, nodeConfig }: Pick<SankeyControllerDatasetOptions, 'size' | 'nodeConfig'>
 ): Map<string, SankeyNode> {
   const nodes = new Map<string, SankeyNode>()
   for (let i = 0; i < data.length; i++) {
@@ -88,8 +67,31 @@ export function buildNodesFromData(
   }
 
   setSizes(nodes, size)
-  setPriorities(nodes, priority)
-  setColumns(nodes, column)
+
+  // nodeConfig
+  const sizeMethod = validateSizeValue(size)
+  for (const node of nodes.values()) {
+    if (node.key in nodeConfig) {
+      const nc = nodeConfig[node.key]
+      // priority
+      if (nc.priority) {
+        node.priority = nc.priority
+      }
+      // column
+      if (nc.column) {
+        node.column = true
+        node.x = nc.column
+      }
+      // label
+      if (nc.label) {
+        node.label = nc.label
+      }
+      // color
+      if (nc.color) {
+        node.color = nc.color
+      }
+    }
+  }
 
   return nodes
 }

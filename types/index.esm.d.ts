@@ -43,10 +43,8 @@ declare module 'chart.js' {
     hoverColorFrom?: Scriptable<string, ScriptableContext<'sankey'>>
     hoverColorTo?: Scriptable<string, ScriptableContext<'sankey'>>
     /* Map<node.key, priority_value> */
-    priority?: Record<string, number>
-    column?: Record<string, number>
     /* Map<node.key, label> */
-    labels?: Record<string, string>
+    nodeConfig?: Record<string, Record<string, string | undefined>>,
 
     modeX?: 'edge' | 'even' /* defaults to 'edge' */
     size?: 'min' | 'max' /* defaults to 'max' */
@@ -84,6 +82,7 @@ declare module 'chart.js' {
     column?: boolean
     /* priority extracted from the SankeyControllerDatasetOptions.priority map */
     priority?: number
+    label?: string
     y?: number
     x?: number
     color?: Color
@@ -101,6 +100,7 @@ declare module 'chart.js' {
       y: number
       height: number
       flow: number
+      color: {}
     }
   }
 
