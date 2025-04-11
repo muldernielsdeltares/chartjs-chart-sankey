@@ -28,14 +28,14 @@ const getColorOption = (option: Color, alpha: number): Color =>
 function setStyle(ctx: CanvasRenderingContext2D, { x, x2, color, active }: FlowConfig) {
   // Make sure nodes connected to hovered flows are using hover colors.
   const c = active && color.hover ? color.hover : color
-  const alpha = active ? (color.alpha ?? 1) : (color.alpha ?? 0.5)
+  const alpha = active ? (color?.alpha ?? 1) : (color?.alpha ?? 0.5)
   let fill: string | CanvasGradient | CanvasPattern = getColorOption('grey', alpha)
-  if (typeof c.from === 'string' && typeof c.to === 'string') {
+  if (c && typeof c.from === 'string' && typeof c.to === 'string') {
     fill = ctx.createLinearGradient(x, 0, x2, 0)
     fill.addColorStop(0, applyAlpha(c.from, alpha))
     fill.addColorStop(1, applyAlpha(c.to, alpha))
   }
-  else if (typeof c.fill === 'string') {
+  else if (c && typeof c.fill === 'string') {
     fill = getColorOption(c.fill, alpha)
   }
 

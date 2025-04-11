@@ -252,7 +252,7 @@ export default class SankeyController extends DatasetController {
       const height = Math.abs(yScale.getPixelForValue(node.y + max) - y)
       const label = node.label ?? node.key
       let textX = x
-      ctx.fillStyle = options.color ?? 'black'
+      ctx.fillStyle = options.color ?? 'darkgrey'
       ctx.textBaseline = 'middle'
       if (x < chartArea.width / 2) {
         ctx.textAlign = 'left'
@@ -300,7 +300,7 @@ export default class SankeyController extends DatasetController {
     }
 
     for (const node of nodes.values()) {
-      ctx.fillStyle = node.color ?? 'black'
+      ctx.fillStyle = node.color ?? '#888'
       const x = xScale!.getPixelForValue(node.x)
       const y = yScale!.getPixelForValue(node.y)
 
