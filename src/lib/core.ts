@@ -90,6 +90,10 @@ export function buildNodesFromData(
       if (nc.color) {
         node.color = nc.color
       }
+      // order
+      if (nc.order) {
+        node.order = nc.order
+      }
     }
   }
 

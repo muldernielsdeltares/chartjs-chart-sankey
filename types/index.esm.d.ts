@@ -78,11 +78,10 @@ declare module 'chart.js' {
     size: number
     from: Array<FromToElement>
     to: Array<FromToElement>
-    /* true if x is defined by SankeyControllerDatasetOptions.column map  */
     column?: boolean
-    /* priority extracted from the SankeyControllerDatasetOptions.priority map */
     priority?: number
     label?: string
+    order?: any
     y?: number
     x?: number
     color?: Color

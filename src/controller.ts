@@ -141,7 +141,7 @@ export default class SankeyController extends DatasetController {
     const nodes = (this._nodes = buildNodesFromData(sankeyData, this.options))
 
     const { maxX, maxY } = layout(nodes, sankeyData, {
-      priority: !!this.options.priority,
+      order: this.options.nodeConfig && Object.values(this.options.nodeConfig).some(n => n.order),
       height: this.chart.canvas.height,
       nodePadding: this.options.nodePadding,
       modeX: this.options.modeX,

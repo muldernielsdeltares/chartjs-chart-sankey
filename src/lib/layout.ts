@@ -264,18 +264,32 @@ export function calculateY(nodeArray: SankeyNode[], maxX: number): number {
   return fixTop(nodeArray, maxX)
 }
 
-export function calculateYUsingPriority(nodeArray: SankeyNode[], maxX: number) {
+export function calculateYUsingOrder(nodeArray: SankeyNode[], maxX: number) {
   let maxY = 0
-  let nextYStart = 0
   for (let x = 0; x <= maxX; x++) {
-    let y = nextYStart
-    const nodes = nodeArray.filter((node) => node.x === x).sort((a, b) => (a.priority ?? 0) - (b.priority ?? 0))
-    nextYStart = nodes.length
-      ? nodes[0].to.filter((to) => to.node.x > x + 1).reduce((acc, cur) => acc + cur.flow, 0) || 0
-      : 0
+    let y = 0
+    const nodes = nodeArray.filter((node) => node.x === x).sort((a, b) => (a.order?.sorting ?? 0) - (b.order?.sorting ?? 0))
     for (const node of nodes) {
-      node.y = y
-      y += Math.max(node.out, node.in)
+      let relativeTo
+      if (node.order?.relativeTo) {
+        relativeTo = nodeArray.find((n) => n.key === node.order.relativeTo.key)
+        if (!relativeTo) {
+          console.error(`node ${node.key} wants to be relative to ${node.order?.relativeTo.key}. But the latter does not exists.`)
+          relativeTo = null
+        }
+        if (typeof relativeTo.y === 'undefined') {
+          console.error(`node ${node.key} wants to be relative to ${node.order?.relativeTo.key}. But the latter does is not yet placed.`)
+          relativeTo = null
+        }
+      }
+      if (relativeTo) {
+        node.y = relativeTo.y +
+          (node.order.relativeTo.y1 ?? 0) * relativeTo.size +
+          (node.order.relativeTo.y2 ?? 0) * node.size
+      } else {
+        node.y = y
+      }
+      y = node.y + node.size
     }
     maxY = Math.max(y, maxY)
   }
@@ -376,8 +390,8 @@ export function sortFlows(nodeArray: SankeyNode[]) {
 }
 
 interface LayoutOptions {
-  /** use node priority when sorting nodes vertically */
-  priority: boolean
+  /** use node order when sorting nodes vertically */
+  order: boolean
   /** canvas height (in pixels) */
   height: number
   /** vertical padding between nodes (in pixels) */
@@ -389,11 +403,11 @@ interface LayoutOptions {
 export function layout(
   nodes: Map<string, SankeyNode>,
   data: SankeyDataPoint[],
-  { priority, height, nodePadding, modeX }: LayoutOptions
+  { order, height, nodePadding, modeX }: LayoutOptions
 ): { maxY: number; maxX: number } {
   const nodeArray = [...nodes.values()]
   const maxX = calculateX(nodes, data, modeX)
-  const maxY = priority ? calculateYUsingPriority(nodeArray, maxX) : calculateY(nodeArray, maxX)
+  const maxY = order ? calculateYUsingOrder(nodeArray, maxX) : calculateY(nodeArray, maxX)
   const padding = (maxY / height) * nodePadding
   const maxYWithPadding = addPadding(nodeArray, padding)
 
