@@ -250,7 +250,13 @@ export default class SankeyController extends DatasetController {
 
       const max = Math[size](node.in || node.out, node.out || node.in)
       const height = Math.abs(yScale.getPixelForValue(node.y + max) - y)
-      const label = node.label ?? node.key
+
+      let label
+      if (typeof node.label === 'function') {
+        label = node.label(node)
+      } else {
+        label = node.label ?? node.key
+      }
       let textX = x
       ctx.fillStyle = options.color ?? 'darkgrey'
       ctx.textBaseline = 'middle'
