@@ -261,12 +261,14 @@ export default class SankeyController extends DatasetController {
       let textX = x
       ctx.fillStyle = options.color ?? 'darkgrey'
       ctx.textBaseline = 'middle'
-      if (x < chartArea.width / 2) {
-        ctx.textAlign = 'left'
-        textX += nodeWidth + borderWidth + 4
-      } else {
+
+      if (node.x === 0 || (node.x !== this._maxX && x > chartArea.width / 2)) {
         ctx.textAlign = 'right'
         textX -= borderWidth + 4
+      }
+      else {
+        ctx.textAlign = 'left'
+        textX += nodeWidth + borderWidth + 4
       }
       this._drawLabel(label, y, height, ctx, textX)
     }
