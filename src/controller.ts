@@ -83,13 +83,14 @@ export default class SankeyController extends DatasetController {
     },
     plugins: {
       tooltip: {
+        displayColors: false,
         callbacks: {
           title() {
             return ''
           },
           label(context) {
             const parsedCustom = context.parsed._custom
-            return parsedCustom.from.key + ' -> ' + parsedCustom.to.key + ': ' + parsedCustom.flow
+            return parsedCustom.from.key + ' → ' + parsedCustom.to.key + ': ' + parsedCustom.flow
           },
         },
       },
