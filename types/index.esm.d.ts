@@ -80,7 +80,14 @@ declare module 'chart.js' {
     to: Array<FromToElement>
     column?: boolean
     priority?: number
-    label?: string
+    label?: {
+      text?: string
+      position?:string
+      color?:{
+        text?:string
+        background?:string
+      }
+    }
     order?: any
     y?: number
     x?: number

@@ -252,32 +252,36 @@ export default class SankeyController extends DatasetController {
       const max = Math[size](node.in || node.out, node.out || node.in)
       const height = Math.abs(yScale.getPixelForValue(node.y + max) - y)
 
-      let label
-      if (typeof node.label === 'function') {
-        label = node.label(node)
+      let labelText
+      if (typeof node.label?.text === 'function') {
+        labelText = node.label.text(node)
       } else {
-        label = node.label ?? node.key
+        labelText = node.label?.text ?? node.key
       }
       let textX = x
-      ctx.fillStyle = options.color ?? 'darkgrey'
       ctx.textBaseline = 'middle'
 
-      if (node.x === 0 || (node.x !== this._maxX && x > chartArea.width / 2)) {
-        ctx.textAlign = 'right'
-        textX -= borderWidth + 4
-      }
-      else {
+      let position = node.label.position || (x < chartArea.width / 2 ? 'right' : 'left');
+      if (position === 'right') {
         ctx.textAlign = 'left'
         textX += nodeWidth + borderWidth + 4
+      } else if (position === 'left') {
+        ctx.textAlign = 'right'
+        textX -= borderWidth + 4
+      } else {
+        ctx.textAlign = 'center'
+        textX += nodeWidth / 2
       }
-      this._drawLabel(label, y, height, ctx, textX)
+
+
+      this._drawLabel(labelText, y, height, ctx, textX, node.label, position)
     }
     ctx.restore()
   }
 
-  private _drawLabel(label: string, y: number, height: number, ctx: CanvasRenderingContext2D, textX: number) {
+  private _drawLabel(labelText: string, y: number, height: number, ctx: CanvasRenderingContext2D, textX: number, label:any, position:string) {
     const font = toFont(this.options.font, this.chart.options.font)
-    const lines = toTextLines(label)
+    const lines = toTextLines(labelText)
     const lineCount = lines.length
     const middle = y + height / 2
     const textHeight = font.lineHeight
@@ -291,7 +295,22 @@ export default class SankeyController extends DatasetController {
         ctx.fillText(lines[i], textX, top + i * textHeight)
       }
     } else {
-      ctx.fillText(label, textX, middle)
+      if(label.color?.background) {
+        const paddingX = textHeight/2
+        const width = ctx.measureText(labelText).width + paddingX*2
+        ctx.fillStyle = label.color?.background
+        let x
+        if (position==='left') {
+          x = textX-width+paddingX
+        } else if(position==='right') {
+          x = textX-paddingX
+        } else {
+          x = textX - width / 2
+        }
+        ctx.fillRect(x, middle - textHeight / 2 - 2, width, 20)
+      }
+      ctx.fillStyle = label.color?.text ?? this.options.color ?? 'darkgrey'
+      ctx.fillText(labelText, textX, middle)
     }
   }
 
