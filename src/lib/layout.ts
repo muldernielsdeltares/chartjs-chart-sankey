@@ -289,6 +289,7 @@ export function calculateYUsingOrder(nodeArray: SankeyNode[], maxX: number) {
       } else {
         node.y = y
       }
+      node.y += node.order?.translate || 0
       y = node.y + node.size
     }
     maxY = Math.max(y, maxY)
@@ -301,6 +302,37 @@ const nodeByXYSize = (a: NodeXYSize, b: NodeXYSize): number => {
   if (a.x !== b.x) return a.x - b.x
   if (a.y === b.y) return a.size - b.size
   return a.y - b.y
+}
+
+/**
+ * @return {number} maxY
+ */
+export function addPaddingUsingOrder(nodeArray: Pick<SankeyNode, 'x' | 'y' | 'in' | 'out' | 'size'>[], padding: number, maxX): number {
+  let maxY = 0
+  let minY = 0
+  for (let x = 0; x <= maxX; x++) {
+    let paddings = 0
+    const nodes = nodeArray.filter((node) => node.x === x).sort((a, b) => a.y - b.y)
+    for (const node of nodes) {
+      if(node.order?.relativeTo) {
+        paddings = 0
+      }
+      if (node.order?.paddings) {
+        paddings = node.order?.paddings
+      }
+      node.y += paddings * padding
+      paddings += 1
+      maxY = Math.max(maxY, node.y + node.size)
+      minY = Math.min(minY, node.y)
+    }
+  }
+
+  if (minY<0) {
+    for (const node of nodeArray) {
+      node.y -= minY
+    }
+  }
+  return maxY-minY
 }
 
 /**
@@ -409,7 +441,7 @@ export function layout(
   const maxX = calculateX(nodes, data, modeX)
   const maxY = order ? calculateYUsingOrder(nodeArray, maxX) : calculateY(nodeArray, maxX)
   const padding = (maxY / height) * nodePadding
-  const maxYWithPadding = addPadding(nodeArray, padding)
+  const maxYWithPadding = order ? addPaddingUsingOrder(nodeArray, padding, maxX) :addPadding(nodeArray, padding)
 
   sortFlows(nodeArray)
 
