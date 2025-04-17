@@ -73,26 +73,15 @@ export function buildNodesFromData(
   for (const node of nodes.values()) {
     if (node.key in nodeConfig) {
       const nc = nodeConfig[node.key]
-      // priority
-      if (nc.priority) {
-        node.priority = nc.priority
+      const keysToCopy = ['priority', 'label', 'color', 'order'];
+      for (const key of keysToCopy) {
+        if (nc[key]) {
+          node[key] = nc[key];
+        }
       }
-      // column
       if (nc.column) {
-        node.column = true
-        node.x = nc.column
-      }
-      // label
-      if (nc.label) {
-        node.label = nc.label
-      }
-      // color
-      if (nc.color) {
-        node.color = nc.color
-      }
-      // order
-      if (nc.order) {
-        node.order = nc.order
+        node.column = true;
+        node.x = nc.column;
       }
     }
   }
